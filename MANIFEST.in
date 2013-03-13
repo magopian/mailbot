@@ -1,0 +1,3 @@
+recursive-include mailbot *
+global-exclude *.pyc
+include VERSION README.rst CHANGELOG LICENSE

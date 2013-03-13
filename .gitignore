@@ -1,0 +1,15 @@
+# Local binaries (they are generated).
+bin/
+include/
+lib/
+
+# sphinx
+docs/build/
+
+# auto-generated
+*.pyc
+*.pyo
+*.egg-info
+.coverage
+.tox/
+build/
