@@ -17,7 +17,7 @@ MailBot does its best to:
 * apply the pep8 recommendations
 * be lightweight, concise and readable
 
-MailBot connects to a SMTP server using the IMAP protocol, thanks to the
+MailBot connects to a mail server using the IMAP protocol, thanks to the
 excellent `IMAPClient from Menno Smits
 <http://imapclient.readthedocs.org/en/latest/>`_.
 
@@ -116,13 +116,12 @@ data:
 * ``from``: tested against the mail sender
 * ``to``: tested against each of the recipients in the "to" field
 * ``cc``: tested against each of the recipients in the "cc" field
-* ``bcc``: tested against each of the recipients in the "bcc" field
 * ``body``: tested against the (text) body of the mail
 
 If no rule are provided, for example for the "from" field, then no rule will be
 applied, and emails from any sender will potentially trigger the callback.
 
-For each piece of data (subject, from, to, cc, bcc, body), the callback class,
+For each piece of data (subject, from, to, cc, body), the callback class,
 once instantiated with the mail, will have a corresponding parameter
 ``FOO_matches`` with all the matches from the given patterns.
 
@@ -138,12 +137,12 @@ Here are example subjects for the subject rules:
 How does it work?
 -----------------
 
-When an email is received on the SMTP server the MailBot is connected to
+When an email is received on the mail server the MailBot is connected to
 (using the IMAP protocol), it'll check all the registered callback classes and
 their rules.
 
 If each provided rule (either as a class parameter or using the register)
-matches the mail's subject, from, to, cc, bcc and body, the callback class will
+matches the mail's subject, from, to, cc and body, the callback class will
 be instantiated, and its callback will be triggered.
 
 
