@@ -13,3 +13,4 @@ docs/build/
 .coverage
 .tox/
 build/
+share/
