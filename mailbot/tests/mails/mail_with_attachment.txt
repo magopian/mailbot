@@ -1,0 +1,55 @@
+Delivered-To: testmagopian+random_key@gmail.com
+Received: by 10.194.34.7 with SMTP id v7csp101053wji;
+        Fri, 15 Mar 2013 02:28:52 -0700 (PDT)
+Return-Path: <mathieu.agopian@gmail.com>
+Received-SPF: pass (google.com: domain of mathieu.agopian@gmail.com designates 10.182.31.109 as permitted sender) client-ip=10.182.31.109
+Authentication-Results: mr.google.com;
+       spf=pass (google.com: domain of mathieu.agopian@gmail.com designates 10.182.31.109 as permitted sender) smtp.mail=mathieu.agopian@gmail.com;
+       dkim=pass header.i=@gmail.com
+X-Received: from mr.google.com ([10.182.31.109])
+        by 10.182.31.109 with SMTP id z13mr2632031obh.37.1363339731787 (num_hops = 1);
+        Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:x-received:date:message-id:subject:from:to
+         :content-type;
+        bh=EDdIiN1bkSUqRxA5ZGCbAxWo/K7ayqdf9ZDEQqAGvDU=;
+        b=nAVPcbc78q8Uyq8ENfiLD4R1x0Oi7kw5nMAI+eppmCqPxzeM2FITiyyz8M2WQ8rnJl
+         28ONzknzAEXl6Hm09EDmwgrVLXxM+x2fbNQ8DWkXtFx+3GlOP0OlE2KC2ObWZK2BxVo0
+         FIEsAZpt/mH4KikhOsHR6J868f/vB/0W6M7JtQGzFhbd6xjEbETDIVlPloYfmZBHs4Rp
+         nO7fP/VBRvWLFV/VK/OlYVXdS0FhptdCV7Zd4UKTIg5kd6rlAaZuW0KhGe6RXr0ou+aU
+         nqq0vSoMVK7BeKKGsA61f4YJ5qTAx4eSbOw8mYhQtnLI7qoNrS4h8iiXLWoNnxCEW9UI
+         YBXA==
+MIME-Version: 1.0
+X-Received: by 10.182.31.109 with SMTP id z13mr2632031obh.37.1363339731783;
+ Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
+Received: by 10.182.98.129 with HTTP; Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
+Date: Fri, 15 Mar 2013 10:28:51 +0100
+Message-ID: <CAB-JLVBXqYpS1GzujSAopk3cS1Xo8C8A+bQew0_jkOpAJu1pFw@mail.gmail.com>
+Subject: Task name here
+From: Mathieu AGOPIAN <mathieu.agopian@gmail.com>
+To: testmagopian+RANDOM_KEY@gmail.com
+Content-Type: multipart/mixed; boundary=14dae93b5c806bd71504d7f3442a
+
+--14dae93b5c806bd71504d7f3442a
+Content-Type: multipart/alternative; boundary=14dae93b5c806bd71204d7f34428
+
+--14dae93b5c806bd71204d7f34428
+Content-Type: text/plain; charset=UTF-8
+
+Mail content here
+
+--14dae93b5c806bd71204d7f34428
+Content-Type: text/html; charset=UTF-8
+
+<div dir="ltr">Mail content here<br></div>
+
+--14dae93b5c806bd71204d7f34428--
+--14dae93b5c806bd71504d7f3442a
+Content-Type: text/plain; charset=US-ASCII; name="test.txt"
+Content-Disposition: attachment; filename="test.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_heb58ogq0
+
+dGVzdCBmaWxlCg==
+--14dae93b5c806bd71504d7f3442a--

@@ -60,7 +60,7 @@ Registering callbacks
     register(MyCallback)
 
 By default, callbacks will be executed on each and every mail received, unless
-you specify it differently, either using the 'rules' parameter on the callback
+you specify it differently, either using the 'rules' attribute on the callback
 class, or by registering with those rules:
 
 
@@ -68,7 +68,8 @@ Providing the rules as a parameter
 ----------------------------------
 
 Here's a callback that will only be triggered if the subject matches the
-pattern 'Hello ' followed by a word:
+pattern 'Hello ' followed by a word, anywhere in the subject (it uses
+``re.search``):
 
 .. code-block:: python
 
@@ -76,10 +77,10 @@ pattern 'Hello ' followed by a word:
 
 
     class MyCallback(Callback):
-        rules = {'subject_patterns': [r'Hello (\w)']}
+        rules = {'subject': [r'Hello (\w)']}
 
         def callback(self):
-            print("Mail received for {0}".format(self.subject_matches[0]))
+            print("Mail received for {0}".format(self.matches['subject'][0]))
 
     register(MyCallback)
 
@@ -101,9 +102,21 @@ registering:
     class MyCallback(Callback):
 
         def callback(self):
-            print("Mail received for %s!" self.subject_matches[0])
+            print("Mail received for %s!" self.matches['subject'][0])
 
-    register(MyCallback, rules={'subject_patterns': [r'Hello (\w)']})
+    register(MyCallback, rules={'subject': [r'Hello (\w)']})
+
+
+How does it work?
+-----------------
+
+When an email is received on the mail server the MailBot is connected to
+(using the IMAP protocol), it'll check all the registered callbacks and their
+rules.
+
+If each provided rule (either as a class parameter or using the register)
+matches the mail's subject, from, to, cc and body, the callback will be
+triggered.
 
 
 Specifying rules
@@ -116,34 +129,68 @@ data:
 * ``from``: tested against the mail sender
 * ``to``: tested against each of the recipients in the "to" field
 * ``cc``: tested against each of the recipients in the "cc" field
-* ``body``: tested against the (text) body of the mail
+* ``body``: tested against the (text/plain) body of the mail
 
 If no rule are provided, for example for the "from" field, then no rule will be
 applied, and emails from any sender will potentially trigger the callback.
 
 For each piece of data (subject, from, to, cc, body), the callback class,
-once instantiated with the mail, will have a corresponding parameter
-``FOO_matches`` with all the matches from the given patterns.
+once instantiated with the mail, and the ``check_rules`` method called, will
+have the attribute ``self.matches[item]`` set with all the matches from the
+given patterns, if any
 
 Here are example subjects for the subject rules:
 [``r'^Hello (\w), (.*)'``, ``r'[Hh]i (\w)!``]
 
-* 'Hello Bryan, how are you?': ``subject_matches`` == ['Bryan', 'how are you?']
-* 'Hi Bryan, how are you?': ``subject_matches`` == ['Bryan']
-* 'aloha, hi Bryan!': ``subject_matches`` == ['Bryan']
-* 'aloha Bryan': rules not respected, callback not triggered
+* 'Hello Bryan, how are you?': self.matches['subject'] == ['Bryan', 'how are you?']
+* 'Hi Bryan, how are you?': self.matches['subject'] == ['Bryan']
+* 'aloha, hi Bryan!': self.matches['subject'] == ['Bryan']
+* 'aloha Bryan': rules not respected, callback not triggered,
+  self.matches['subject'] == None
 
 
-How does it work?
------------------
+Rules checking
+--------------
 
-When an email is received on the mail server the MailBot is connected to
-(using the IMAP protocol), it'll check all the registered callback classes and
-their rules.
+A callback will be triggered if the following applies:
 
-If each provided rule (either as a class parameter or using the register)
-matches the mail's subject, from, to, cc and body, the callback class will
-be instantiated, and its callback will be triggered.
+* for each item/rule, **any** of the provided regular expressions matches
+* **all** the rules (for all the provided items) are respected
+
+Notice the "any" and the "all" there:
+
+* for each rule, there may be several regular expressions. If any of those
+  match, then the rule is respected.
+* if one rule doesn't match, the callback won't be triggered. Non existent
+  rules don't count, so you could have a single rule on the subject, and none
+  on the other items (from, to, cc, body).
+
+As an example, let's take an email with the subject "Hello Bryan", from
+"John@doe.com":
+
+.. code-block:: python
+
+    from mailbot import register, Callback
+
+
+    class MyCallback(Callback):
+        rules = {'subject': [r'Hello (\w)', 'Hi!'], 'from': ['@doe.com']}
+
+        def callback(self):
+            print("Mail received for {0}".format(self.matches['subject'][0]))
+
+    register(MyCallback)
+
+All the rules are respected, and the callback will be triggered
+
+* subject: even though 'Hi!' isn't found anywhere in the subject, the other
+  regular expression matches
+* from: the regular expression matches
+* to, cc, body: no rules provided, so they aren't taken into account
+
+The last bullet point also means that if register a callback with no rules at
+all, it'll be triggered on each and every email, making it a "catchall
+callback".
 
 
 Contents
