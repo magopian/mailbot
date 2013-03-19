@@ -81,13 +81,14 @@ class MailBotTest(MailBotClientTest):
         callback.check_rules.assert_called_once_with()
         self.assertEqual(res, None)
 
-    def test_process_messages(self):
+    @patch('mailbot.mailbot.message_from_string')
+    def test_process_messages(self, message_from_string):
         messages = {1: {'RFC822': sentinel.mail1},
                     2: {'RFC822': sentinel.mail2}}
         self.bot.get_messages = Mock(return_value=messages)
-        # message constructor will return exactly what it's given
+        # mock of email.message_from_string will return exactly what it's given
         # to be used in the "self.bot.process_message.assert_has_calls" below
-        self.bot.message_constructor = Mock(side_effect=lambda m: m)
+        message_from_string.side_effect = lambda m: m
         self.bot.process_message = Mock()
         self.bot.mark_processed = Mock()
         CALLBACKS_MAP.update({sentinel.callback1: sentinel.rules1,

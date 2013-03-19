@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from email import message_from_file, message_from_string
-from os import path
+from os.path import dirname, join
 from re import search
 
 from mock import Mock
@@ -51,8 +51,7 @@ class CallbackTest(MailBotTestCase):
         self.assertEqual(callback.check_item('foobar', ['(.*)']), None)
 
         # test on real mail
-        email_file = path.join(path.dirname(__file__),
-                               'mails/mail_with_attachment.txt')
+        email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
         callback = Callback(email, {})
 
@@ -89,8 +88,7 @@ class CallbackTest(MailBotTestCase):
         self.assertEqual(callback.get_email_body(empty_message), '')
 
         # real email
-        email_file = path.join(path.dirname(__file__),
-                               'mails/mail_with_attachment.txt')
+        email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
         self.assertEqual(callback.get_email_body(email), 'Mail content here\n')
 

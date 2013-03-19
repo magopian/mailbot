@@ -2,8 +2,9 @@
 
 from email import message_from_string
 from imapclient import FLAGGED
+from os.path import dirname, join
 
-from .. import register, MailBot
+from .. import register, MailBot, Callback
 from ..tests import MailBotTestCase
 
 try:
@@ -75,3 +76,81 @@ class MailReceivedTest(MailBotTestCase):
 
         ids = self.mb.client.search(['UNFLAGGED'])
         self.assertEqual(ids, [])
+
+    def test_process_messages(self):
+        # real mail
+        email_file = join(dirname(dirname(__file__)),
+                          'tests', 'mails', 'mail_with_attachment.txt')
+        email = open(email_file, 'r').read()
+        self.mb.client.append(self.home_folder, email)
+
+        class MatchingCallback(Callback):
+            """Callback with each rule matching the test mail.
+
+            Each rule contains a non matching regexp, which shouldn't prevent
+            the callback from being triggered
+
+            """
+            rules = {
+                'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
+                'to': [r'\w+\+\w+@gmail.com', r'(\w+)\+(\w+)@gmail.com',
+                       'NOMATCH'],
+                'from': [r'\w+\.\w+@gmail.com', r'(\w+)\.(\w+)@gmail.com',
+                         'NOMATCH'],
+                'body': [r'Mail content \w+', r'Mail content (\w+)',
+                         'NOMATCH']}
+
+            def check_rules(self):
+                res = super(MatchingCallback, self).check_rules()
+                assert res, "Matching callback check_rules returned False"
+                return res
+
+            def trigger(self):
+                m = self.matches['subject']
+                assert len(m) == 3
+                assert m[0].group(0) == 'Task name here'
+                assert m[1].group(1) == 'here'
+                assert m[2] is None
+
+                m = self.matches['to']
+                assert len(m) == 3
+                assert m[0].group(0) == 'testmagopian+RANDOM_KEY@gmail.com'
+                assert m[1].group(1) == 'testmagopian'
+                assert m[1].group(2) == 'RANDOM_KEY'
+                assert m[2] is None
+
+                m = self.matches['from']
+                assert len(m) == 3
+                assert m[0].group(0) == 'mathieu.agopian@gmail.com'
+                assert m[1].group(1) == 'mathieu'
+                assert m[1].group(2) == 'agopian'
+                assert m[2] is None
+
+                m = self.matches['body']
+                assert len(m) == 3
+                assert m[0].group(0) == 'Mail content here'
+                assert m[1].group(1) == 'here'
+                assert m[2] is None
+
+        class NonMatchingCallback(Callback):
+            """Callback with each rule but one matching the test mail.
+
+            To prevent the callback from being triggered, at least one rule
+            must completely fail (have 0 regexp that matches).
+
+            """
+            rules = {  # only difference is that one rule doesn't match
+                'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
+                'to': [r'\w+\+\w+@gmail.com', r'(\w+)\+(\w+)@gmail.com',
+                       'NOMATCH'],
+                'from': [r'\w+\.\w+@gmail.com', r'(\w+)\.(\w+)@gmail.com',
+                         'NOMATCH'],
+                'body': ['NOMATCH', 'DOESNT MATCH EITHER']}
+
+            def trigger(self):
+                assert False, "Non matching callback has been triggered"
+
+        register(MatchingCallback)
+        register(NonMatchingCallback)
+
+        self.mb.process_messages()

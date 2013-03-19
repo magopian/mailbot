@@ -15,7 +15,6 @@ class MailBot(object):
     """
     home_folder = 'INBOX'
     imapclient = IMAPClient
-    message_constructor = message_from_string  # easier for testing
 
     def __init__(self, host, username, password, port=None, use_uid=True,
                  ssl=False, stream=False):
@@ -45,7 +44,7 @@ class MailBot(object):
         messages = self.get_messages()
 
         for uid, msg in messages.items():
-            message = self.message_constructor(msg['RFC822'])
+            message = message_from_string(msg['RFC822'])
             for callback_class, rules in CALLBACKS_MAP.items():
                 self.process_message(message, callback_class, rules)
             self.mark_processed(uid)
