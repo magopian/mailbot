@@ -159,16 +159,24 @@ applied, and emails from any sender will potentially trigger the callback.
 For each piece of data (subject, from, to, cc, body), the callback class,
 once instantiated with the mail, and the ``check_rules`` method called, will
 have the attribute ``self.matches[item]`` set with all the matches from the
-given patterns, if any
+given patterns, if any. Matches will in fact be ``re.MatchObject``.
 
 Here are example subjects for the subject rules:
-[``r'^Hello (\w), (.*)'``, ``r'[Hh]i (\w)!``]
+[``r'^Hello (\w+), (.*)'``, ``r'[Hh]i (\w+)``]
 
-* 'Hello Bryan, how are you?': self.matches['subject'] == ['Bryan', 'how are you?']
-* 'Hi Bryan, how are you?': self.matches['subject'] == ['Bryan']
-* 'aloha, hi Bryan!': self.matches['subject'] == ['Bryan']
-* 'aloha Bryan': rules not respected, callback not triggered,
-  self.matches['subject'] == None
+For each of the following examples, ``self.matches['subject']`` will be a list
+of two ``re.MatchObject``, one for each regular expression.
+
+If a regular expression doesn't match, then it'll return ``None``.
+
+For each example subject, a ``re.MatchObject`` will be represented by its
+matching groups:
+
+* 'Hello Bryan, how are you?':
+  [['Hello Bryan, how are you?', 'Bryan', 'how are you?'], None]
+* 'Hi Bryan, how are you?': [None, ['Hi Bryan', 'Bryan']]
+* 'aloha, hi Bryan!': [None, ['hi Bryan', 'Bryan']]
+* 'aloha Bryan': rules not respected, callback not triggered, [None, None]
 
 
 Rules checking
