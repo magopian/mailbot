@@ -4,7 +4,7 @@ from email import message_from_file, message_from_string
 from os import path
 from re import search
 
-from mock import sentinel, Mock
+from mock import Mock
 
 from . import MailBotTestCase
 from .. import Callback
@@ -80,10 +80,21 @@ class CallbackTest(MailBotTestCase):
         self.assertEqual(callback.get_email_body(), None)  # not a Message
         self.assertEqual(callback.get_email_body('foo'), None)  # not a Message
 
+        # empty email
         empty_message = message_from_string('')
         self.assertEqual(callback.get_email_body(empty_message), '')
 
+        # badly formed email without a 'text/plain' part
+        empty_message.set_type('html/plain')
+        self.assertEqual(callback.get_email_body(empty_message), '')
+
+        # real email
         email_file = path.join(path.dirname(__file__),
                                'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
         self.assertEqual(callback.get_email_body(email), 'Mail content here\n')
+
+    def test_trigger(self):
+        callback = Callback('foo', 'bar')
+
+        self.assertRaises(NotImplementedError, callback.trigger)

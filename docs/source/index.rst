@@ -54,7 +54,7 @@ Registering callbacks
 
     class MyCallback(Callback):
 
-        def callback(self):
+        def trigger(self):
             print("Mail received: {O}".format(self.subject))
 
     register(MyCallback)
@@ -79,7 +79,7 @@ pattern 'Hello ' followed by a word, anywhere in the subject (it uses
     class MyCallback(Callback):
         rules = {'subject': [r'Hello (\w)']}
 
-        def callback(self):
+        def trigger(self):
             print("Mail received for {0}".format(self.matches['subject'][0]))
 
     register(MyCallback)
@@ -101,7 +101,7 @@ registering:
 
     class MyCallback(Callback):
 
-        def callback(self):
+        def trigger(self):
             print("Mail received for %s!" self.matches['subject'][0])
 
     register(MyCallback, rules={'subject': [r'Hello (\w)']})
@@ -176,7 +176,7 @@ As an example, let's take an email with the subject "Hello Bryan", from
     class MyCallback(Callback):
         rules = {'subject': [r'Hello (\w)', 'Hi!'], 'from': ['@doe.com']}
 
-        def callback(self):
+        def trigger(self):
             print("Mail received for {0}".format(self.matches['subject'][0]))
 
     register(MyCallback)

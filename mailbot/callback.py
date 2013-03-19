@@ -53,6 +53,12 @@ class Callback(object):
         return any(self.matches[item])
 
     def get_email_body(self, message=None):
+        """Return the message text body.
+
+        Return the first 'text/plain' part of the email.Message that doesn't
+        have a filename.
+
+        """
         if message is None:
             message = self.message
 
@@ -65,3 +71,8 @@ class Callback(object):
             if content_type == 'text/plain' and filename is None:
                 # text body of the mail, not an attachment
                 return part.get_payload()
+        return ''
+
+    def trigger(self):
+        """Called when a mail matching the registered rules is received."""
+        raise NotImplementedError("Must be implemented in a child class.")

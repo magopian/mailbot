@@ -35,7 +35,7 @@ class MailBot(object):
         """Check if callback matches rules, and if so, trigger."""
         callback = callback_class(message, rules)
         if callback.check_rules():
-            return callback.callback()
+            return callback.trigger()
 
     def process_messages(self):
         """Process messages: check which callbacks should be triggered."""

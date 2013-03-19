@@ -56,7 +56,7 @@ class MailBotTest(MailBotClientTest):
     def test_process_message_trigger(self):
         callback = Mock()
         callback.check_rules.return_value = True
-        callback.callback.return_value = sentinel.callback_result
+        callback.trigger.return_value = sentinel.callback_result
         callback_class = Mock(return_value=callback)
 
         res = self.bot.process_message(sentinel.message, callback_class,
@@ -65,7 +65,7 @@ class MailBotTest(MailBotClientTest):
         callback_class.assert_called_once_with(sentinel.message,
                                                sentinel.rules)
         callback.check_rules.assert_called_once_with()
-        callback.callback.assert_called_once_with()
+        callback.trigger.assert_called_once_with()
         self.assertEqual(res, sentinel.callback_result)
 
     def test_process_message_no_trigger(self):
