@@ -2,7 +2,7 @@
 
 from email import message_from_string
 
-from imapclient import IMAPClient
+from imapclient import IMAPClient, FLAGGED
 
 
 class MailBot(object):
@@ -13,6 +13,7 @@ class MailBot(object):
     against the registered rules for each of them.
 
     """
+    home_folder = 'INBOX'
     imapclient = IMAPClient
     message_constructor = message_from_string  # easier for testing
 
@@ -21,6 +22,7 @@ class MailBot(object):
         self.client = self.imapclient(host, port=port, use_uid=use_uid,
                                       ssl=ssl, stream=stream)
         self.client.login(username, password)
+        self.client.select_folder(self.home_folder)
 
     def get_message_ids(self):
         """Return the list of IDs of messages to process."""
@@ -50,4 +52,4 @@ class MailBot(object):
 
     def mark_processed(self, uid):
         """Mark the message corresponding to uid as processed."""
-        self.client.set_flags([uid], ['FLAGGED'])
+        self.client.add_flags([uid], [FLAGGED])

@@ -42,6 +42,28 @@ From github::
     pip install -e http://github.com/novagile/mailbot/
 
 
+Usage
+-----
+
+You first need to instantiate MailBot, giving it informations to connect to
+your IMAP server. MailBot uses `IMAPClient
+<http://imapclient.readthedocs.org/en/latest/#a-simple-example>`_, and as such
+takes the same parameters.
+
+You also need to provide the username and password. Here's an simple example:
+
+.. code-block:: python
+
+    from mailbot import MailBot
+
+
+    mailbot = MailBot('imap.myserver.com', 'username', 'password')
+
+
+Once that's done, you may register the callbacks and rules that will be tested
+on each mail received when calling ``mailbot.process_messages``.
+
+
 Registering callbacks
 ---------------------
 

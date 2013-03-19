@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+
+"""Settings used by the live tests to connect and login to an IMAP server."""
+
+# mandatory
+HOST = 'your host here'
+USERNAME = 'your username here'
+PASSWORD = 'your password here'
+
+# optional
+# check http://imapclient.readthedocs.org/en/latest/#imapclient.IMAPClient
+PORT = None
+USE_UID = True
+SSL = False
+STREAM = False

@@ -8,6 +8,10 @@ test: bin/python
 	bin/pip install tox
 	bin/tox
 
+livetest: bin/python
+	bin/pip install tox
+	bin/tox -e py26-live,py27-live
+
 docs:
 	bin/pip install sphinx
 	SPHINXBUILD=../bin/sphinx-build $(MAKE) -C docs html $^

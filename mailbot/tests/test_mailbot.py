@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from imapclient import FLAGGED
 from mock import patch, sentinel, Mock, DEFAULT, call
 
 from . import MailBotTestCase
@@ -22,8 +23,8 @@ class MailBotClientTest(MailBotTestCase):
 class MailBotTest(MailBotClientTest):
 
     @patch.multiple('imapclient.imapclient.IMAPClient',
-                    login=DEFAULT, __init__=DEFAULT)
-    def test_init(self, login, __init__):
+                    login=DEFAULT, __init__=DEFAULT, select_folder=DEFAULT)
+    def test_init(self, login, __init__, select_folder):
         __init__.return_value = None
 
         kwargs = {'port': sentinel.port,
@@ -34,6 +35,7 @@ class MailBotTest(MailBotClientTest):
 
         __init__.assert_called_once_with('somehost', **kwargs)
         login.assert_called_once_with('john', 'doe')
+        select_folder.assert_called_once_with(self.bot.home_folder)
 
     def test_get_message_ids(self):
         self.bot.client.search.return_value = sentinel.id_list
@@ -103,5 +105,5 @@ class MailBotTest(MailBotClientTest):
 
     def test_mark_processed(self):
         self.bot.mark_processed(sentinel.id)
-        self.bot.client.set_flags.assert_called_once_with([sentinel.id],
-                                                          ['FLAGGED'])
+        self.bot.client.add_flags.assert_called_once_with([sentinel.id],
+                                                          [FLAGGED])
