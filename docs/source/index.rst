@@ -56,8 +56,16 @@ You also need to provide the username and password. Here's an simple example:
 
     from mailbot import MailBot
 
+    from mycallbacks import MyCallback
+
 
     mailbot = MailBot('imap.myserver.com', 'username', 'password')
+
+    # register your callback
+    mailbot.register(MyCallback)
+
+    # check the unprocessed messages and trigger the callback
+    mailbot.process_messages()
 
 
 Once that's done, you may register the callbacks and rules that will be tested
@@ -221,10 +229,3 @@ All the rules are respected, and the callback will be triggered
 The last bullet point also means that if register a callback with no rules at
 all, it'll be triggered on each and every email, making it a "catchall
 callback".
-
-
-Contents
---------
-
-.. toctree::
-   :maxdepth: 2
