@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from email import message_from_string
-from imapclient import FLAGGED
 from os.path import dirname, join
 
 from .. import register, MailBot, Callback
@@ -62,19 +61,35 @@ class MailReceivedTest(MailBotTestCase):
             {1: {'SEQ': 1, 'RFC822': '\r\n'},
              2: {'FLAGS': ('\\Seen',), 'SEQ': 2, 'RFC822': '\r\n'}})
 
+    def test_mark_processing(self):
+        self.mb.client.append(self.home_folder,
+                              message_from_string('').as_string())
+        ids = self.mb.client.search(['NOT KEYWORD PROCESSING'])
+        self.assertEqual(ids, [1])
+
+        self.mb.mark_processing(1)
+
+        self.assertEquals(self.mb.client.get_flags([1]), {1: ('PROCESSING',)})
+        ids = self.mb.client.search(['KEYWORD PROCESSING'])
+        self.assertEqual(ids, [1])
+
+        ids = self.mb.client.search(['NOT KEYWORD PROCESSING'])
+        self.assertEqual(ids, [])
+
     def test_mark_processed(self):
         self.mb.client.append(self.home_folder,
                               message_from_string('').as_string())
-        ids = self.mb.client.search(['UNDELETED'])
+        ids = self.mb.client.search(['NOT KEYWORD PROCESSED'])
         self.assertEqual(ids, [1])
 
+        self.mb.mark_processing(1)
         self.mb.mark_processed(1)
 
-        self.assertEquals(self.mb.client.get_flags([1]), {1: (FLAGGED,)})
-        ids = self.mb.client.search(['FLAGGED'])
+        self.assertEquals(self.mb.client.get_flags([1]), {1: ('PROCESSED',)})
+        ids = self.mb.client.search(['KEYWORD PROCESSED'])
         self.assertEqual(ids, [1])
 
-        ids = self.mb.client.search(['UNFLAGGED'])
+        ids = self.mb.client.search(['NOT KEYWORD PROCESSED'])
         self.assertEqual(ids, [])
 
     def test_process_messages(self):

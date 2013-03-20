@@ -2,7 +2,7 @@
 
 from email import message_from_string
 
-from imapclient import IMAPClient, FLAGGED
+from imapclient import IMAPClient
 
 
 class MailBot(object):
@@ -25,7 +25,8 @@ class MailBot(object):
 
     def get_message_ids(self):
         """Return the list of IDs of messages to process."""
-        return self.client.search(['UNFLAGGED'])
+        return self.client.search(['NOT KEYWORD PROCESSED',
+                                   'NOT KEYWORD PROCESSING'])
 
     def get_messages(self):
         """Return the list of messages to process."""
@@ -44,11 +45,17 @@ class MailBot(object):
         messages = self.get_messages()
 
         for uid, msg in messages.items():
+            self.mark_processing(uid)
             message = message_from_string(msg['RFC822'])
             for callback_class, rules in CALLBACKS_MAP.items():
                 self.process_message(message, callback_class, rules)
             self.mark_processed(uid)
 
+    def mark_processing(self, uid):
+        """Mark the message corresponding to uid as processed."""
+        self.client.add_flags([uid], ['PROCESSING'])
+
     def mark_processed(self, uid):
         """Mark the message corresponding to uid as processed."""
-        self.client.add_flags([uid], [FLAGGED])
+        self.client.remove_flags([uid], ['PROCESSING'])
+        self.client.add_flags([uid], ['PROCESSED'])

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from imapclient import FLAGGED
 from mock import patch, sentinel, Mock, DEFAULT, call
 
 from . import MailBotTestCase
@@ -42,7 +41,8 @@ class MailBotTest(MailBotClientTest):
 
         res = self.bot.get_message_ids()
 
-        self.bot.client.search.assert_called_once_with(['UNFLAGGED'])
+        self.bot.client.search.assert_called_once_with(
+            ['NOT KEYWORD PROCESSED', 'NOT KEYWORD PROCESSING'])
         self.assertEqual(res, sentinel.id_list)
 
     def test_get_messages(self):
@@ -104,7 +104,14 @@ class MailBotTest(MailBotClientTest):
              call(sentinel.mail2, sentinel.callback2, sentinel.rules2)],
             any_order=True)
 
+    def test_mark_processing(self):
+        self.bot.mark_processing(sentinel.id)
+        self.bot.client.add_flags.assert_called_once_with([sentinel.id],
+                                                          ['PROCESSING'])
+
     def test_mark_processed(self):
         self.bot.mark_processed(sentinel.id)
+        self.bot.client.remove_flags.assert_called_once_with([sentinel.id],
+                                                             ['PROCESSING'])
         self.bot.client.add_flags.assert_called_once_with([sentinel.id],
-                                                          [FLAGGED])
+                                                          ['PROCESSED'])

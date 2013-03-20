@@ -147,6 +147,12 @@ If each provided rule (either as a class parameter or using the register)
 matches the mail's subject, from, to, cc and body, the callback will be
 triggered.
 
+Mails are flagged according to their state, in the ``process_messages`` method:
+
+* ``UNPROCESSED``: MailBot hasn't started looking at this mail
+* ``PROCESSING``: MailBot is checking callbacks, and triggering them if needed
+* ``PROCESSED``: MailBot is done with this mail, and won't process it anymore
+
 
 Specifying rules
 ----------------
