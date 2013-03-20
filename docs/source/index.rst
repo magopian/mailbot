@@ -67,9 +67,8 @@ You also need to provide the username and password. Here's an simple example:
     # check the unprocessed messages and trigger the callback
     mailbot.process_messages()
 
-
-Once that's done, you may register the callbacks and rules that will be tested
-on each mail received when calling ``mailbot.process_messages``.
+You may want to place the ``process_messages`` in a loop, a celery task, or in
+a cron job, tu regularly check new messages and process them.
 
 
 Registering callbacks
