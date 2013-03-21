@@ -54,7 +54,7 @@ You also need to provide the username and password. Here's an simple example:
 
 .. code-block:: python
 
-    from mailbot import MailBot
+    from mailbot import MailBot, register
 
     from mycallbacks import MyCallback
 
@@ -62,7 +62,7 @@ You also need to provide the username and password. Here's an simple example:
     mailbot = MailBot('imap.myserver.com', 'username', 'password')
 
     # register your callback
-    mailbot.register(MyCallback)
+    register(MyCallback)
 
     # check the unprocessed messages and trigger the callback
     mailbot.process_messages()
