@@ -149,10 +149,12 @@ triggered.
 
 Mails are flagged according to their state, in the ``process_messages`` method:
 
-* unprocessed: MailBot hasn't started looking at this mail, it doesn't have the
-  ``PROCESSING`` nor the ``PROCESSED`` flags
-* ``PROCESSING``: MailBot is checking callbacks, and triggering them if needed
-* ``PROCESSED``: MailBot is done with this mail, and won't process it anymore
+* unread (unseen): mail to be processed by MailBot
+* read (seen):
+  - starred (flagged): MailBot is checking callbacks, and triggering them if
+    needed, the mail is being processed
+  - not starred (unflagged): MailBot is done with this mail, and won't process
+    it anymore
 
 
 Specifying rules

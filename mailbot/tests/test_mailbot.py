@@ -42,7 +42,7 @@ class MailBotTest(MailBotClientTest):
         res = self.bot.get_message_ids()
 
         self.bot.client.search.assert_called_once_with(
-            ['NOT KEYWORD PROCESSED', 'NOT KEYWORD PROCESSING'])
+            ['Unseen', 'Unflagged'])
         self.assertEqual(res, sentinel.id_list)
 
     def test_get_messages(self):
@@ -106,12 +106,12 @@ class MailBotTest(MailBotClientTest):
 
     def test_mark_processing(self):
         self.bot.mark_processing(sentinel.id)
-        self.bot.client.add_flags.assert_called_once_with([sentinel.id],
-                                                          ['PROCESSING'])
+        self.bot.client.add_flags.assert_called_once_with(
+            [sentinel.id], ['\\Flagged', '\\Seen'])
 
     def test_mark_processed(self):
         self.bot.mark_processed(sentinel.id)
         self.bot.client.remove_flags.assert_called_once_with([sentinel.id],
-                                                             ['PROCESSING'])
+                                                             ['\\Flagged'])
         self.bot.client.add_flags.assert_called_once_with([sentinel.id],
-                                                          ['PROCESSED'])
+                                                          ['\\Seen'])

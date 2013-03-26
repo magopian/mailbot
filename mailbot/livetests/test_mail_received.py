@@ -32,6 +32,13 @@ class MailReceivedTest(MailBotTestCase):
     def _delete_folder(self):
         """Delete an IMAP folder, if it exists."""
         if self.mb.client.folder_exists(self.home_folder):
+            self.mb.client.select_folder(self.home_folder)
+            messages = self.mb.client.search('ALL')
+            if messages:
+                self.mb.client.remove_flags(messages,
+                                            ['\\Seen', '\\Flagged'])
+                self.mb.client.delete_messages(messages)
+                self.mb.client.expunge()
             self.mb.client.delete_folder(self.home_folder)
 
     def test_get_message_ids(self):
@@ -58,38 +65,39 @@ class MailReceivedTest(MailBotTestCase):
                               message_from_string('').as_string())
         self.assertEqual(
             self.mb.get_messages(),
-            {1: {'SEQ': 1, 'RFC822': '\r\n'},
-             2: {'FLAGS': ('\\Seen',), 'SEQ': 2, 'RFC822': '\r\n'}})
+            {2: {'FLAGS': ('\\Seen',), 'SEQ': 2, 'RFC822': '\r\n'}})
 
     def test_mark_processing(self):
         self.mb.client.append(self.home_folder,
                               message_from_string('').as_string())
-        ids = self.mb.client.search(['NOT KEYWORD PROCESSING'])
+        ids = self.mb.client.search(['Unseen'])
         self.assertEqual(ids, [1])
 
         self.mb.mark_processing(1)
 
-        self.assertEquals(self.mb.client.get_flags([1]), {1: ('PROCESSING',)})
-        ids = self.mb.client.search(['KEYWORD PROCESSING'])
+        self.assertEquals(self.mb.client.get_flags([1]),
+                          {1: ('\\Flagged', '\\Seen')})
+        ids = self.mb.client.search(['Flagged', 'Seen'])
         self.assertEqual(ids, [1])
 
-        ids = self.mb.client.search(['NOT KEYWORD PROCESSING'])
+        ids = self.mb.client.search(['Unseen'])
+        self.assertEqual(ids, [])
+        ids = self.mb.client.search(['Unflagged'])
         self.assertEqual(ids, [])
 
     def test_mark_processed(self):
         self.mb.client.append(self.home_folder,
                               message_from_string('').as_string())
-        ids = self.mb.client.search(['NOT KEYWORD PROCESSED'])
+        ids = self.mb.client.search(['Unseen'])
         self.assertEqual(ids, [1])
 
-        self.mb.mark_processing(1)
         self.mb.mark_processed(1)
 
-        self.assertEquals(self.mb.client.get_flags([1]), {1: ('PROCESSED',)})
-        ids = self.mb.client.search(['KEYWORD PROCESSED'])
+        self.assertEquals(self.mb.client.get_flags([1]), {1: ('\\Seen',)})
+        ids = self.mb.client.search(['Seen'])
         self.assertEqual(ids, [1])
 
-        ids = self.mb.client.search(['NOT KEYWORD PROCESSED'])
+        ids = self.mb.client.search(['Flagged'])
         self.assertEqual(ids, [])
 
     def test_process_messages(self):

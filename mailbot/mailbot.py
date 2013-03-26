@@ -25,8 +25,7 @@ class MailBot(object):
 
     def get_message_ids(self):
         """Return the list of IDs of messages to process."""
-        return self.client.search(['NOT KEYWORD PROCESSED',
-                                   'NOT KEYWORD PROCESSING'])
+        return self.client.search(['Unseen', 'Unflagged'])
 
     def get_messages(self):
         """Return the list of messages to process."""
@@ -52,10 +51,10 @@ class MailBot(object):
             self.mark_processed(uid)
 
     def mark_processing(self, uid):
-        """Mark the message corresponding to uid as processed."""
-        self.client.add_flags([uid], ['PROCESSING'])
+        """Mark the message corresponding to uid as being processed."""
+        self.client.add_flags([uid], ['\\Flagged', '\\Seen'])
 
     def mark_processed(self, uid):
         """Mark the message corresponding to uid as processed."""
-        self.client.remove_flags([uid], ['PROCESSING'])
-        self.client.add_flags([uid], ['PROCESSED'])
+        self.client.remove_flags([uid], ['\\Flagged'])
+        self.client.add_flags([uid], ['\\Seen'])
