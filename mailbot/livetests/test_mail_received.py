@@ -99,73 +99,85 @@ class MailReceivedTest(MailBotTestCase):
         email = open(email_file, 'r').read()
         self.mb.client.append(self.home_folder, email)
 
-        class MatchingCallback(Callback):
-            """Callback with each rule matching the test mail.
+        # Callback with each rule matching the test mail
+        # Each rule contains a non matching regexp, which shouldn't prevent the
+        # callback from being triggered
+        matching_rules = {
+            'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
+            'to': [r'\w+\+\w+@example.com', r'(\w+)\+(\w+)@example.com',
+                   'NOMATCH'],
+            'cc': [r'\w+@example.com', r'(\w+)@example.com', 'NOMATCH'],
+            'from': [r'\w+\.\w+@example.com', r'(\w+)\.(\w+)@example.com',
+                     'NOMATCH'],
+            'body': [r'Mail content \w+', r'Mail content (\w+)',
+                     'NOMATCH']}
 
-            Each rule contains a non matching regexp, which shouldn't prevent
-            the callback from being triggered
+        # Callback with each rule but one matching the test mail.
+        # To prevent the callback from being triggered, at least one rule must
+        # completely fail (have 0 regexp that matches).
+        failing_rules = {
+            'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
+            'to': [r'\w+\+\w+@example.com', r'(\w+)\+(\w+)@example.com',
+                   'NOMATCH'],
+            'cc': [r'\w+@example.com', r'(\w+)@example.com', 'NOMATCH'],
+            'from': [r'\w+\.\w+@example.com', r'(\w+)\.(\w+)@example.com',
+                     'NOMATCH'],
+            'body': ['NOMATCH', 'DOESNT MATCH EITHER']}  # this rule fails
 
-            """
-            rules = {
-                'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
-                'to': [r'\w+\+\w+@gmail.com', r'(\w+)\+(\w+)@gmail.com',
-                       'NOMATCH'],
-                'from': [r'\w+\.\w+@gmail.com', r'(\w+)\.(\w+)@gmail.com',
-                         'NOMATCH'],
-                'body': [r'Mail content \w+', r'Mail content (\w+)',
-                         'NOMATCH']}
+        class TestCallback(Callback):
+
+            def __init__(self, message, rules):
+                super(TestCallback, self).__init__(message, rules)
+                self.called = False
+                self.check_rules_result = False
+                self.triggered = False
 
             def check_rules(self):
-                res = super(MatchingCallback, self).check_rules()
-                assert res, "Matching callback check_rules returned False"
+                res = super(TestCallback, self).check_rules()
+                self.called = True
+                self.check_rules_result = res
                 return res
 
             def trigger(self):
-                m = self.matches['subject']
-                assert len(m) == 3
-                assert m[0].group(0) == 'Task name here'
-                assert m[1].group(1) == 'here'
-                assert m[2] is None
+                self.triggered = True
 
-                m = self.matches['to']
-                assert len(m) == 3
-                assert m[0].group(0) == 'testmagopian+RANDOM_KEY@gmail.com'
-                assert m[1].group(1) == 'testmagopian'
-                assert m[1].group(2) == 'RANDOM_KEY'
-                assert m[2] is None
+        matching_callback = TestCallback(message_from_string(email),
+                                         matching_rules)
 
-                m = self.matches['from']
-                assert len(m) == 3
-                assert m[0].group(0) == 'mathieu.agopian@gmail.com'
-                assert m[1].group(1) == 'mathieu'
-                assert m[1].group(2) == 'agopian'
-                assert m[2] is None
+        def make_matching_callback(email, rules):
+            return matching_callback
 
-                m = self.matches['body']
-                assert len(m) == 3
-                assert m[0].group(0) == 'Mail content here'
-                assert m[1].group(1) == 'here'
-                assert m[2] is None
+        failing_callback = TestCallback(message_from_string(email),
+                                        failing_rules)
 
-        class NonMatchingCallback(Callback):
-            """Callback with each rule but one matching the test mail.
+        def make_failing_callback(email, rules):
+            return failing_callback
 
-            To prevent the callback from being triggered, at least one rule
-            must completely fail (have 0 regexp that matches).
-
-            """
-            rules = {  # only difference is that one rule doesn't match
-                'subject': [r'Task name \w+', r'Task name (\w+)', 'NOMATCH'],
-                'to': [r'\w+\+\w+@gmail.com', r'(\w+)\+(\w+)@gmail.com',
-                       'NOMATCH'],
-                'from': [r'\w+\.\w+@gmail.com', r'(\w+)\.(\w+)@gmail.com',
-                         'NOMATCH'],
-                'body': ['NOMATCH', 'DOESNT MATCH EITHER']}
-
-            def trigger(self):
-                assert False, "Non matching callback has been triggered"
-
-        register(MatchingCallback)
-        register(NonMatchingCallback)
+        register(make_matching_callback, matching_rules)
+        register(make_failing_callback, failing_rules)
 
         self.mb.process_messages()
+
+        self.assertTrue(matching_callback.called)
+        self.assertTrue(matching_callback.check_rules_result)
+        self.assertTrue(matching_callback.triggered)
+        self.assertEqual(matching_callback.matches['subject'],
+                         ['Task name here', 'here'])
+        self.assertEqual(matching_callback.matches['from'],
+                         ['foo.bar@example.com', ('foo', 'bar')])
+        self.assertEqual(matching_callback.matches['to'],
+                         ['foo+RANDOM_KEY@example.com',
+                          'bar+RANDOM_KEY_2@example.com',
+                          ('foo', 'RANDOM_KEY'),
+                          ('bar', 'RANDOM_KEY_2')])
+        self.assertEqual(matching_callback.matches['cc'],
+                         ['foo@example.com',
+                          'bar@example.com',
+                          'foo', 'bar'])
+        self.assertEqual(matching_callback.matches['body'],
+                         ['Mail content here', 'here'])
+
+        self.assertTrue(failing_callback.called)
+        self.assertFalse(failing_callback.check_rules_result)
+        self.assertFalse(failing_callback.triggered)
+        self.assertEqual(failing_callback.matches['body'], [])

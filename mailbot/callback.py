@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from re import search
+from collections import defaultdict
+from re import findall
 
 
 class Callback(object):
     """Base class for callbacks."""
-    matches = {}
 
     def __init__(self, message, rules):
+        self.matches = defaultdict(list)
         self.message = message
         self.rules = rules
 
@@ -48,7 +49,8 @@ class Callback(object):
         # if item is not in header, then item == 'body'
         value = message.get(item, self.get_email_body(message))
 
-        self.matches[item] = [search(regexp, value) for regexp in regexps]
+        for regexp in regexps:  # store all captures for easy access
+            self.matches[item] += findall(regexp, value)
 
         return any(self.matches[item])
 

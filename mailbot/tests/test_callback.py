@@ -2,7 +2,6 @@
 
 from email import message_from_file, message_from_string
 from os.path import dirname, join
-from re import search
 
 from mock import Mock
 
@@ -42,7 +41,7 @@ class CallbackTest(MailBotTestCase):
         callback.rules = {'foo': True, 'bar': ['test'], 'baz': 'barf'}
         self.assertEqual(callback.check_rules(), True)
 
-    def test_check_item(self):
+    def test_check_item_non_existent(self):
         empty = message_from_string('')
         callback = Callback(empty, {})
 
@@ -50,28 +49,38 @@ class CallbackTest(MailBotTestCase):
         self.assertEqual(callback.check_item('foobar', ['.*'], empty), None)
         self.assertEqual(callback.check_item('foobar', ['(.*)']), None)
 
-        # test on real mail
+    def test_check_item_subject(self):
         email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
         callback = Callback(email, {})
 
-        # subject
         self.assertFalse(callback.check_item('subject', []))
         self.assertEqual(callback.matches['subject'], [])
 
-        self.assertTrue(callback.check_item('subject', ['(.*)']))
-        self.assertEqual(callback.matches['subject'][0].groups(),
-                         search('(.*)', 'Task name here').groups())
+        self.assertFalse(callback.check_item('subject', ['foo']))
+        self.assertEqual(callback.matches['subject'], [])
 
-        # body
+        self.assertTrue(callback.check_item('subject', ['Task name (.*)']))
+        self.assertEqual(callback.matches['subject'], ['here'])
+
+    def test_check_item_to(self):
+        # "to" may be a list of several emails
+        email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
+        email = message_from_file(open(email_file, 'r'))
+        callback = Callback(email, {})
+
+        self.assertTrue(callback.check_item('to', [r'\+([^@]+)@']))
+        self.assertEqual(callback.matches['to'],
+                         ['RANDOM_KEY', 'RANDOM_KEY_2'])
+
+    def test_check_item_body(self):
+        email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
+        email = message_from_file(open(email_file, 'r'))
+        callback = Callback(email, {})
         callback.get_email_body = Mock(return_value='some mail body')
-        self.assertFalse(callback.check_item('body', []))
-        self.assertEqual(callback.matches['body'], [])
-        callback.get_email_body.assert_called_once_with(email)
 
-        self.assertTrue(callback.check_item('body', ['(.*)']))
-        self.assertEqual(callback.matches['body'][0].groups(),
-                         search('(.*)', 'some mail body').groups())
+        self.assertTrue(callback.check_item('body', ['.+']))
+        self.assertEqual(callback.matches['body'], ['some mail body'])
 
     def test_get_email_body(self):
         callback = Callback('foo', 'bar')

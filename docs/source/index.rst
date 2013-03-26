@@ -98,7 +98,7 @@ Providing the rules as a parameter
 
 Here's a callback that will only be triggered if the subject matches the
 pattern 'Hello ' followed by a word, anywhere in the subject (it uses
-``re.search``):
+``re.findall``):
 
 .. code-block:: python
 
@@ -172,25 +172,29 @@ applied, and emails from any sender will potentially trigger the callback.
 
 For each piece of data (subject, from, to, cc, body), the callback class,
 once instantiated with the mail, and the ``check_rules`` method called, will
-have the attribute ``self.matches[item]`` set with all the matches from the
-given patterns, if any. Matches will in fact be ``re.MatchObject``.
+have the attribute ``self.matches[item]`` set with all the captures from the
+given patterns, if any, or the full match.
 
 Here are example subjects for the subject rules:
-[``r'^Hello (\w+), (.*)'``, ``r'[Hh]i (\w+)``]
+[``r'Hello (\w+), (.*)'``, ``r'[Hh]i (\w+)``]
 
 For each of the following examples, ``self.matches['subject']`` will be a list
-of two ``re.MatchObject``, one for each regular expression.
+of all the captures for all the regular expressions.
 
-If a regular expression doesn't match, then it'll return ``None``.
+If a regular expression doesn't match, then it'll return an empty list.
 
-For each example subject, a ``re.MatchObject`` will be represented by its
-matching groups:
+* 'Hello Bryan, how are you?': [('Bryan', 'how are you?')]
+* 'Hi Bryan, how are you?': ['Bryan']
+* 'aloha, hi Bryan!': ['Bryan']
+* 'aloha Bryan': rules not respected, callback not triggered, []
 
-* 'Hello Bryan, how are you?':
-  [['Hello Bryan, how are you?', 'Bryan', 'how are you?'], None]
-* 'Hi Bryan, how are you?': [None, ['Hi Bryan', 'Bryan']]
-* 'aloha, hi Bryan!': [None, ['hi Bryan', 'Bryan']]
-* 'aloha Bryan': rules not respected, callback not triggered, [None, None]
+Here are example subjects for the subject rules (no captures):
+[``r'Hello \w+'``, ``r'[Hh]i \w+``]
+
+* 'Hello Bryan, how are you?': ['Hello Bryan']
+* 'Hi Bryan, how are you?': ['Hi Bryan']
+* 'aloha, hi Bryan!': ['hi Bryan']
+* 'aloha Bryan': rules not respected, callback not triggered, []
 
 
 Rules checking

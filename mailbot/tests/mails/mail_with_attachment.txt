@@ -1,16 +1,16 @@
-Delivered-To: testmagopian+random_key@gmail.com
+Delivered-To: foo+RANDOM_KEY@example.com
 Received: by 10.194.34.7 with SMTP id v7csp101053wji;
         Fri, 15 Mar 2013 02:28:52 -0700 (PDT)
-Return-Path: <mathieu.agopian@gmail.com>
-Received-SPF: pass (google.com: domain of mathieu.agopian@gmail.com designates 10.182.31.109 as permitted sender) client-ip=10.182.31.109
+Return-Path: <foo+RANDOM_KEY@example.com>
+Received-SPF: pass (example.com: domain of foo+RANDOM_KEY@example.com designates 1.2.3.4 as permitted sender) client-ip=1.2.3.4
 Authentication-Results: mr.google.com;
-       spf=pass (google.com: domain of mathieu.agopian@gmail.com designates 10.182.31.109 as permitted sender) smtp.mail=mathieu.agopian@gmail.com;
-       dkim=pass header.i=@gmail.com
+       spf=pass (example.com: domain of foo+RANDOM_KEY@example.com designates 1.2.3.4 as permitted sender) smtp.mail=foo+RANDOM_KEY@example.com;
+       dkim=pass header.i=@example.com
 X-Received: from mr.google.com ([10.182.31.109])
         by 10.182.31.109 with SMTP id z13mr2632031obh.37.1363339731787 (num_hops = 1);
         Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20120113;
+        d=example.com; s=20120113;
         h=mime-version:x-received:date:message-id:subject:from:to
          :content-type;
         bh=EDdIiN1bkSUqRxA5ZGCbAxWo/K7ayqdf9ZDEQqAGvDU=;
@@ -25,10 +25,11 @@ X-Received: by 10.182.31.109 with SMTP id z13mr2632031obh.37.1363339731783;
  Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
 Received: by 10.182.98.129 with HTTP; Fri, 15 Mar 2013 02:28:51 -0700 (PDT)
 Date: Fri, 15 Mar 2013 10:28:51 +0100
-Message-ID: <CAB-JLVBXqYpS1GzujSAopk3cS1Xo8C8A+bQew0_jkOpAJu1pFw@mail.gmail.com>
+Message-ID: <CAB-JLVBXqYpS1GzujSAopk3cS1Xo8C8A+bQew0_jkOpAJu1pFw@mail.example.com>
 Subject: Task name here
-From: Mathieu AGOPIAN <mathieu.agopian@gmail.com>
-To: testmagopian+RANDOM_KEY@gmail.com
+From: Foo Bar <foo.bar@example.com>
+To: foo+RANDOM_KEY@example.com, bar+RANDOM_KEY_2@example.com
+Cc: foo@example.com, bar@example.com
 Content-Type: multipart/mixed; boundary=14dae93b5c806bd71504d7f3442a
 
 --14dae93b5c806bd71504d7f3442a
