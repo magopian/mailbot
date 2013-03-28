@@ -54,7 +54,7 @@ class Callback(object):
             value = message[item]
             # decode header (might be encoded as latin-1, utf-8...
             value = ' '.join(chunk.decode(encoding or 'ASCII')
-                            for chunk, encoding in decode_header(value))
+                             for chunk, encoding in decode_header(value))
 
         for regexp in regexps:  # store all captures for easy access
             self.matches[item] += findall(regexp, value)

@@ -123,6 +123,7 @@ class MailBotTest(MailBotClientTest):
         self.bot.timeout = None  # don't reset messages, no timeout!
         self.bot.reset_timeout_messages()
         self.assertFalse(self.bot.client.search.mock_calls)
+        self.assertFalse(self.bot.client.fetch.mock_calls)
         self.assertFalse(self.bot.client.remove_flags.mock_calls)
 
     def test_reset_timeout_messages_timeout(self):
@@ -141,3 +142,16 @@ class MailBotTest(MailBotClientTest):
             [sentinel.id1, sentinel.id2], ['INTERNALDATE'])
         self.bot.client.remove_flags.assert_called_once_with(
             [sentinel.id1], ['\\Flagged', '\\Seen'])
+
+    def test_reset_timeout_messages_timeout_no_old_messages(self):
+        self.bot.timeout = 180  # 3 minutes ago
+        self.bot.client.search.return_value = [sentinel.id1, sentinel.id2]
+
+        self.bot.client.fetch.return_value = {
+            sentinel.id1: {'INTERNALDATE': datetime.utcnow(), 'SEQ': 1},
+            sentinel.id2: {'INTERNALDATE': datetime.utcnow(), 'SEQ': 2}}
+
+        self.bot.reset_timeout_messages()
+
+        self.bot.client.search.assert_called_once_with(['Flagged', 'Seen'])
+        self.assertFalse(self.bot.client.remove_flags.mock_calls)
