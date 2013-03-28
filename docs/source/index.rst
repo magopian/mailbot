@@ -157,6 +157,25 @@ Mails are flagged according to their state, in the ``process_messages`` method:
     it anymore
 
 
+Specifying a timeout
+~~~~~~~~~~~~~~~~~~~~
+
+To avoid a mail from staying in the "processing" state for too long (for
+example because a previous ``process_message`` started processing it, but then
+failed), you may specify a ``timeout`` parameter (in seconds) when
+instantiating MailBot:
+
+.. code-block:: python
+
+    from mailbot import MailBot
+
+
+    mailbot = MailBot('imap.myserver.com', 'username', 'password', timeout=180)
+
+This doesn't mean that the mail will be reset after 3 minutes, but that when
+``process_messages`` is called, it'll first reset mails that are in the
+processing state and older than 3 minutes.
+
 Specifying rules
 ----------------
 

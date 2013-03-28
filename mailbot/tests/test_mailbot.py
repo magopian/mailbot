@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime, timedelta
+
 from mock import patch, sentinel, Mock, DEFAULT, call
 
 from . import MailBotTestCase
@@ -10,6 +12,7 @@ class TestableMailBot(MailBot):
 
     def __init__(self, *args, **kwargs):
         self.client = Mock()
+        self.timeout = None
 
 
 class MailBotClientTest(MailBotTestCase):
@@ -115,3 +118,26 @@ class MailBotTest(MailBotClientTest):
                                                              ['\\Flagged'])
         self.bot.client.add_flags.assert_called_once_with([sentinel.id],
                                                           ['\\Seen'])
+
+    def test_reset_timeout_messages_timeout_none(self):
+        self.bot.timeout = None  # don't reset messages, no timeout!
+        self.bot.reset_timeout_messages()
+        self.assertFalse(self.bot.client.search.mock_calls)
+        self.assertFalse(self.bot.client.remove_flags.mock_calls)
+
+    def test_reset_timeout_messages_timeout(self):
+        self.bot.timeout = 0  # always reset messages
+        self.bot.client.search.return_value = [sentinel.id1, sentinel.id2]
+        past = datetime.utcnow() - timedelta(minutes=10)
+        future = datetime.utcnow() + timedelta(minutes=10)
+        self.bot.client.fetch.return_value = {
+            sentinel.id1: {'INTERNALDATE': past, 'SEQ': 1},  # too old: reset
+            sentinel.id2: {'INTERNALDATE': future, 'SEQ': 2}}
+
+        self.bot.reset_timeout_messages()
+
+        self.bot.client.search.assert_called_once_with(['Flagged', 'Seen'])
+        self.bot.client.fetch.assert_called_once_with(
+            [sentinel.id1, sentinel.id2], ['INTERNALDATE'])
+        self.bot.client.remove_flags.assert_called_once_with(
+            [sentinel.id1], ['\\Flagged', '\\Seen'])

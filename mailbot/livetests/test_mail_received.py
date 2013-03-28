@@ -100,6 +100,32 @@ class MailReceivedTest(MailBotTestCase):
         ids = self.mb.client.search(['Flagged'])
         self.assertEqual(ids, [])
 
+    def test_reset_timeout_messages(self):
+        self.mb.timeout = -180  # 3 minutes in the future!
+        self.mb.client.append(self.home_folder,
+                              message_from_string('').as_string())
+        ids = self.mb.client.search(['Unseen'])
+        self.assertEqual(ids, [1])
+
+        self.mb.mark_processing(1)
+        self.mb.reset_timeout_messages()
+
+        self.assertEquals(self.mb.client.get_flags([1]), {1: ()})
+
+    def test_reset_timeout_messages_no_old_message(self):
+        self.mb.timeout = 180  # 3 minutes ago
+        self.mb.client.append(self.home_folder,
+                              message_from_string('').as_string())
+        ids = self.mb.client.search(['Unseen'])
+        self.assertEqual(ids, [1])
+
+        self.mb.mark_processing(1)
+        self.mb.reset_timeout_messages()
+
+        # reset_timeout_messages didn't reset the message
+        self.assertEquals(self.mb.client.get_flags([1]),
+                          {1: ('\\Flagged', '\\Seen')})
+
     def test_process_messages(self):
         # real mail
         email_file = join(dirname(dirname(__file__)),
