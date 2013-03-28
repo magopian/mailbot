@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+from email.header import decode_header
 from re import findall
 
 
@@ -47,7 +48,13 @@ class Callback(object):
             return None
 
         # if item is not in header, then item == 'body'
-        value = message.get(item, self.get_email_body(message))
+        if item == 'body':
+            value = self.get_email_body(message)
+        else:
+            value = message[item]
+            # decode header (might be encoded as latin-1, utf-8...
+            value = ' '.join(chunk.decode(encoding or 'ASCII')
+                            for chunk, encoding in decode_header(value))
 
         for regexp in regexps:  # store all captures for easy access
             self.matches[item] += findall(regexp, value)
@@ -72,7 +79,9 @@ class Callback(object):
             filename = part.get_filename()
             if content_type == 'text/plain' and filename is None:
                 # text body of the mail, not an attachment
-                return part.get_payload()
+                encoding = part.get_content_charset() or 'ASCII'
+                return part.get_payload(decode=True).decode(encoding)
+
         return ''
 
     def trigger(self):

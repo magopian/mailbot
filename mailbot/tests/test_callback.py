@@ -73,6 +73,15 @@ class CallbackTest(MailBotTestCase):
         self.assertEqual(callback.matches['to'],
                          ['RANDOM_KEY', 'RANDOM_KEY_2'])
 
+    def test_check_item_to_encoded(self):
+        # "to" may be a list of several emails
+        email_file = join(dirname(__file__), 'mails/mail_encoded_headers.txt')
+        email = message_from_file(open(email_file, 'r'))
+        callback = Callback(email, {})
+
+        self.assertTrue(callback.check_item('to', [r'(.*) <testmagopian']))
+        self.assertEqual(callback.matches['to'], [u'test création'])
+
     def test_check_item_body(self):
         email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
@@ -100,6 +109,15 @@ class CallbackTest(MailBotTestCase):
         email_file = join(dirname(__file__), 'mails/mail_with_attachment.txt')
         email = message_from_file(open(email_file, 'r'))
         self.assertEqual(callback.get_email_body(email), 'Mail content here\n')
+
+    def test_get_email_body_encoded(self):
+        callback = Callback('foo', 'bar')
+
+        # real email with encoded mail body
+        email_file = join(dirname(__file__), 'mails/mail_encoded_headers.txt')
+        email = message_from_file(open(email_file, 'r'))
+        self.assertEqual(callback.get_email_body(email),
+                         u'Test de création de bannette\n')
 
     def test_trigger(self):
         callback = Callback('foo', 'bar')
