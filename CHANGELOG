@@ -1,8 +1,17 @@
 Changelog
 =========
 
-0.2 (unreleased)
+0.2 (2013-03-28)
 ----------------
+
+  - automatically decode headers, allowing for unicode subjects, senders,
+    recipients, CCs and body
+  - new timeout parameter: mails in the processing state for longer than this
+    timeout will be reprocessed
+  - use SEEN and FLAGGED to manage mail states (not processed, processing,
+    processed)
+  - captures from the rules' regexps available in Callback.matches (previously,
+    this was storing MatchObjects)
 
 
 0.1 (2013-03-20)
