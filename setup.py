@@ -29,7 +29,7 @@ if __name__ == '__main__':  # ``import setup`` doesn't trigger setup().
           keywords='mail callback',
           author='Mathieu Agopian',
           author_email='mathieu.agopian@gmail.com',
-          url='https://github.com/novagile/mailbot',
+          url='https://github.com/magopian/mailbot',
           license='BSD Licence',
           packages=find_packages(),
           include_package_data=True,

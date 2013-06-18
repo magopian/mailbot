@@ -2,17 +2,17 @@
 MailBot
 #######
 
-.. image:: https://secure.travis-ci.org/novagile/mailbot.png?branch=master
+.. image:: https://secure.travis-ci.org/magopian/mailbot.png?branch=master
    :alt: Build Status
-   :target: https://travis-ci.org/novagile/mailbot
+   :target: https://travis-ci.org/magopian/mailbot
 
 MailBot: register callbacks to be executed on mail reception.
 
 * Authors: Mathieu Agopian and `contributors
-  <https://github.com/novagile/mailbot/contributors>`_
+  <https://github.com/magopian/mailbot/contributors>`_
 * Licence: BSD
 * Compatibility: Django 1.4+, python2.6 up to python3.3
-* Project URL: https://github.com/novagile/mailbot
+* Project URL: https://github.com/magopian/mailbot
 * Documentation: http://mailbot.rtfd.org/
 
 
@@ -23,7 +23,7 @@ Setup your environment:
 
 ::
 
-    git clone https://github.com/novagile/mailbot.git
+    git clone https://github.com/magopian/mailbot.git
     cd mailbot
 
 Hack and run the tests using `Tox <https://pypi.python.org/pypi/tox>`_ to test

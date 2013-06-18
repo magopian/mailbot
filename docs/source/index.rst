@@ -25,7 +25,7 @@ excellent `IMAPClient from Menno Smits
 Other resources
 ---------------
 
-Fork it on: http://github.com/novagile/mailbot/
+Fork it on: http://github.com/magopian/mailbot/
 
 Documentation: http://mailbot.rtfd.org/
 
@@ -39,7 +39,7 @@ From PyPI::
 
 From github::
 
-    pip install -e http://github.com/novagile/mailbot/
+    pip install -e http://github.com/magopian/mailbot/
 
 
 Usage
