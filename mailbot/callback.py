@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 from collections import defaultdict
 from email.header import decode_header
 from re import findall
+
+from .compat import text_type, encoded_padding
 
 
 class Callback(object):
@@ -27,7 +31,7 @@ class Callback(object):
             return True
 
         rules_tests = [self.check_item(item, regexps)
-                       for item, regexps in rules.iteritems()]
+                       for item, regexps in rules.items()]
 
         return all(rules_tests)  # True only if at least one value is
 
@@ -53,8 +57,10 @@ class Callback(object):
         else:
             value = message[item]
             # decode header (might be encoded as latin-1, utf-8...
-            value = ' '.join(chunk.decode(encoding or 'ASCII')
-                             for chunk, encoding in decode_header(value))
+            value = encoded_padding.join(
+                chunk.decode(encoding or 'ASCII')
+                if not isinstance(chunk, text_type) else chunk
+                for chunk, encoding in decode_header(value))
 
         for regexp in regexps:  # store all captures for easy access
             self.matches[item] += findall(regexp, value)
@@ -80,7 +86,10 @@ class Callback(object):
             if content_type == 'text/plain' and filename is None:
                 # text body of the mail, not an attachment
                 encoding = part.get_content_charset() or 'ASCII'
-                return part.get_payload(decode=True).decode(encoding)
+                content = part.get_payload()
+                if not isinstance(content, text_type):
+                    content = part.get_payload(decode=True).decode(encoding)
+                return content
 
         return ''
 

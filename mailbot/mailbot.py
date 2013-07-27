@@ -80,7 +80,7 @@ class MailBot(object):
 
         # compare datetimes without tzinfo, as UTC
         date_pivot = datetime.utcnow() - timedelta(seconds=self.timeout)
-        to_reset = [msg_id for msg_id, data in messages.iteritems()
+        to_reset = [msg_id for msg_id, data in messages.items()
                     if data['INTERNALDATE'].replace(tzinfo=None) < date_pivot]
 
         if to_reset:
