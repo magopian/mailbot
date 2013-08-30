@@ -151,6 +151,7 @@ Mails are flagged according to their state, in the ``process_messages`` method:
 
 * unread (unseen): mail to be processed by MailBot
 * read (seen):
+
   - starred (flagged): MailBot is checking callbacks, and triggering them if
     needed, the mail is being processed
   - not starred (unflagged): MailBot is done with this mail, and won't process
