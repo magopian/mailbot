@@ -1,12 +1,9 @@
 language: python
-python:
-  - "2.7"
-  - "3.3"
+python: 2.7
+env:
+  - TOX_ENV=py27
+  - TOX_ENV=py33
 install:
-  - pip install --use-mirrors flake8 mock
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.3' ]]; then pip install --use-mirrors unittest2py3k; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors unittest2; fi
-  - pip install -e .
+  - pip install tox
 script:
-  - unit2 discover mailbot.tests
-  - flake8 mailbot
+  - tox -e $TOX_ENV
